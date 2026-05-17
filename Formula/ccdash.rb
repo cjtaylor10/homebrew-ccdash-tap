@@ -1,18 +1,23 @@
 class Ccdash < Formula
   desc "Local desktop dashboard for managing Claude Code sessions, projects, and ports"
   homepage "https://github.com/cjtaylor10/ccdash"
-  version "0.6.0"
+  version "0.8.0"
 
   # Source-build formula. When precompiled release artifacts are hosted,
   # replace `url` and update `sha256`.
   url "https://github.com/cjtaylor10/ccdash/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "d79d5e41d88d9b1f3ca142c0d83631e191e9b74997029ea5790b435619860203"
+  sha256 "089d276ac3d0d0444c697a814fb14a8f877f053d455cc6d89e2a750194e3c1b1"
   license "MIT"
 
   depends_on "rust" => :build
   depends_on "node" => :build
   depends_on "pnpm" => :build
   depends_on "tmux"
+
+  on_linux do
+    # macOS ships lsof in /usr/sbin; Linux needs the package.
+    depends_on "lsof"
+  end
 
   # Tauri 2 CLI is installed as a Rust binary; the formula installs it locally
   # at build time via `cargo install tauri-cli` if it isn't already on PATH.
