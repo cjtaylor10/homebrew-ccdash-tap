@@ -19,14 +19,12 @@ class Ccdash < Formula
 
   def install
     # Build the frontend first; Tauri bundles it during build.
-    # pnpm 10 refuses to run native install scripts (e.g. esbuild) in CI envs
-    # without explicit approval. We use --config.confirmModulesPurge=false +
-    # --config.dangerouslyAllowAllBuilds=true to bypass that.
+    # --ignore-scripts skips esbuild's optional install verification script
+    # (which pnpm 10 refuses to run in CI without per-project approval).
+    # esbuild's native binary is delivered via separate platform packages
+    # (@esbuild/darwin-arm64 etc.) so the install script is non-essential.
     cd "apps/ccdash-ui/ui" do
-      ENV["PNPM_CONFIG_ONLY_BUILT_DEPENDENCIES"] = "esbuild"
-      ENV["NPM_CONFIG_ONLY_BUILT_DEPENDENCIES"] = "esbuild"
-      system "pnpm", "install", "--frozen-lockfile",
-             "--config.onlyBuiltDependencies=esbuild"
+      system "pnpm", "install", "--frozen-lockfile", "--ignore-scripts"
       system "pnpm", "run", "build"
     end
 
