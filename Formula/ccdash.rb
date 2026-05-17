@@ -1,12 +1,12 @@
 class Ccdash < Formula
   desc "Local desktop dashboard for managing Claude Code sessions, projects, and ports"
   homepage "https://github.com/cjtaylor10/ccdash"
-  version "1.1.0"
+  version "1.1.1"
 
   # Source-build formula. When precompiled release artifacts are hosted,
   # replace `url` and update `sha256`.
   url "https://github.com/cjtaylor10/ccdash/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "314469f0751d4ab2cb20c4cf29c8f101ad830e69243b2d2f7b54bac0b3691d89"
+  sha256 "f4a326b7f239a577a2b3ba9c919a707cbac375bd33dda5384804db6a764e4299"
   license "MIT"
 
   depends_on "rust" => :build
@@ -77,6 +77,10 @@ class Ccdash < Formula
     keep_alive true
     log_path var/"log/ccdash/daemon.out.log"
     error_log_path var/"log/ccdash/daemon.err.log"
+    # launchd / systemd default PATH is minimal — must include HOMEBREW_PREFIX/bin
+    # so the daemon can spawn `tmux` (and on Linux, `lsof`) regardless of how it
+    # was started.
+    environment_variables PATH: "#{HOMEBREW_PREFIX}/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   end
 
   def post_install
