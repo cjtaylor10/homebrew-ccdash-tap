@@ -18,9 +18,15 @@ class Ccdash < Formula
   # at build time via `cargo install tauri-cli` if it isn't already on PATH.
 
   def install
-    # Build the SvelteKit frontend first; Tauri bundles it during build.
+    # Build the frontend first; Tauri bundles it during build.
+    # pnpm 10 refuses to run native install scripts (e.g. esbuild) in CI envs
+    # without explicit approval. We use --config.confirmModulesPurge=false +
+    # --config.dangerouslyAllowAllBuilds=true to bypass that.
     cd "apps/ccdash-ui/ui" do
-      system "pnpm", "install", "--frozen-lockfile"
+      ENV["PNPM_CONFIG_ONLY_BUILT_DEPENDENCIES"] = "esbuild"
+      ENV["NPM_CONFIG_ONLY_BUILT_DEPENDENCIES"] = "esbuild"
+      system "pnpm", "install", "--frozen-lockfile",
+             "--config.onlyBuiltDependencies=esbuild"
       system "pnpm", "run", "build"
     end
 
