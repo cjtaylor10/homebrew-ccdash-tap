@@ -46,8 +46,14 @@ class Ccdash < Formula
       system "codesign", "--force", "--deep", "--sign", "-",
              "target/release/bundle/macos/ccdash.app"
       prefix.install "target/release/bundle/macos/ccdash.app"
-      bin.write_exec_script prefix/"ccdash.app/Contents/MacOS/ccdash-ui"
-      mv bin/"ccdash-ui", bin/"ccdash-ui-launch" if File.exist?(bin/"ccdash-ui")
+      # `ccdash-ui` launcher: opens the bundled .app via macOS LaunchServices.
+      # Using `open` rather than exec'ing the binary directly gives proper
+      # NSApp activation, dock icon, focus, etc.
+      (bin/"ccdash-ui").write <<~SH
+        #!/usr/bin/env bash
+        exec /usr/bin/open -W "#{prefix}/ccdash.app" "$@"
+      SH
+      chmod 0755, bin/"ccdash-ui"
     else
       bin.install "target/release/ccdash-ui"
     end
